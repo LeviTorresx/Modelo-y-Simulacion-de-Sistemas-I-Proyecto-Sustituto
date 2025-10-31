@@ -30,4 +30,7 @@ COPY . .
 # ============================================
 # default command (train + predict)
 # ============================================
-CMD ["sh", "-c", "python train.py && python predict.py"]
+
+RUN chmod +x entrypoint.sh
+
+ENTRYPOINT ["./entrypoint.sh"]
