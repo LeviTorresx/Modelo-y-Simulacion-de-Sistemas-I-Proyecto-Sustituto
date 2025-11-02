@@ -71,7 +71,7 @@ Dentro del directorio `fase-2` encontraremos:
 
 - **`train.py`** → Entrena el modelo de machine learning utilizando el conjunto de datos de Kaggle, genera el archivo `model.pkl` y guarda el modelo entrenado.  
 - **`predict.py`** → Carga el modelo entrenado desde `model.pkl` y realiza predicciones sobre un nuevo conjunto de datos (por ejemplo, `test.csv`).  
-- **`requirements.txt`** → Contiene las librerías necesarias para ejecutar ambos scripts.  
+- **`dependencies.txt`** → Contiene las librerías necesarias para ejecutar ambos scripts.  
 - **`Dockerfile`** → Define la configuración del contenedor que incluye todo el entorno de ejecución.
 - **`docker-compose.yml`** → Automatiza la construcción y ejecución del contenedor enviando los resultados a la carpeta `data/`.
 
@@ -79,7 +79,7 @@ Dentro de `fase-2` encontramos un directorio adicional que se llama **`data`** q
 
 - **`test.zip`** → Es dataset con formato .csv comprimido que vamos a pasar por el modelo para generar la predicción.
 - **`train.zip`** → Es el conjunto de entrenamiento en formato .csv comprimido que incluye tanto las variables de entrada como la etiqueta objetivo (trip_duration) y se usa para entrenar el modelo.
-- **`model.pkl`** → Archivo binario con el modelo ya entrenado (formato `pickle`), se genera después de ejecutar el script `train.py`.
+- **`model_lgbm.pkl`** → Archivo binario con el modelo ya entrenado (formato `pickle`), se genera después de ejecutar el script `train.py`.
 - **`submission.csv`** → Es la predicción realizada con el modelo entrenado, se genera después de ejecutar el script `predict.py`.
 
 ---
