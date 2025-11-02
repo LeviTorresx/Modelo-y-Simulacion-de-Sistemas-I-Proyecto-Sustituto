@@ -1,3 +1,15 @@
+"""
+train.py
+---------
+Este script entrena un modelo de predicción de duración de viajes en taxi usando LightGBM.
+El flujo es:
+1. Cargar los datos de entrenamiento.
+2. Crear características derivadas (distancia, tiempo, clima).
+3. Entrenar el modelo.
+4. Guardar el modelo entrenado en formato .pkl.
+"""
+
+import os
 import numpy as np
 import pandas as pd
 from datetime import datetime
@@ -6,32 +18,35 @@ from lightgbm import LGBMRegressor
 import joblib
 
 # =========================================================
-# GLOBAL SETTINGS
+# CONFIGURACIÓN GLOBAL
 # =========================================================
-DATA_PATH = "./data/train.zip"
+DATA_PATH = "./data/train.zip"  # Ruta del dataset de entrenamiento
 
-# New York coordinates (for the example dataset)
+# Coordenadas de Nueva York (ubicación de referencia del dataset)
 NYC_COORDS = Point(40.7128, -74.0060)
 
-# Date range (adjust according to your data)
+# Rango de fechas para los datos meteorológicos
 START_DATE = datetime(2015, 12, 31)
 END_DATE = datetime(2016, 7, 31)
 
-# =========================================================
-# DATA LOADING
-# =========================================================
-import pandas as pd
-import os
 
+# =========================================================
+# CARGA DE DATOS
+# =========================================================
 def load_data(path: str) -> pd.DataFrame:
     """
-    Load dataset (supports .csv, .csv.gz, .zip).
-    If it's a .zip, it must contain a single CSV file inside.
+    Carga el dataset de entrenamiento desde un archivo .csv, .gz o .zip.
+
+    Parámetros:
+        path (str): Ruta al archivo.
+
+    Retorna:
+        pd.DataFrame: Datos cargados.
     """
     if not os.path.exists(path):
-        raise FileNotFoundError(f"File not found: {path}")
+        raise FileNotFoundError(f"Archivo no encontrado: {path}")
 
-    # Detecta tipo de compresión
+    # Detecta tipo de compresión según extensión
     if path.endswith(".gz"):
         compression = "gzip"
     elif path.endswith(".zip"):
@@ -39,24 +54,21 @@ def load_data(path: str) -> pd.DataFrame:
     else:
         compression = None
 
-    print(f"Loading data from: {path} (compression={compression})")
-
+    print(f"Cargando datos desde: {path} (compresión={compression})")
     df = pd.read_csv(path, compression=compression)
 
-    print(f"Data loaded: {df.shape}")
-    print(df.info())
-    print(df.describe())
-
+    print(f"Datos cargados: {df.shape}")
     return df
 
 
-
 # =========================================================
-# DISTANCE CALCULATION
+# CÁLCULO DE DISTANCIA
 # =========================================================
 def haversine(lat1, lon1, lat2, lon2):
-    """Calculate the distance between two coordinates (km) using the Haversine formula."""
-    R = 6371.0  #  Terrestrial radio in km
+    """
+    Calcula la distancia entre dos puntos geográficos (en km) usando la fórmula Haversine.
+    """
+    R = 6371.0  # Radio de la Tierra (km)
     phi1, phi2 = np.radians(lat1), np.radians(lat2)
     delta_phi = np.radians(lat2 - lat1)
     delta_lambda = np.radians(lon2 - lon1)
@@ -68,7 +80,9 @@ def haversine(lat1, lon1, lat2, lon2):
 
 
 def add_distance_feature(df: pd.DataFrame) -> pd.DataFrame:
-    """Add a column with the distance of the trip."""
+    """
+    Agrega una nueva columna 'distance_km' calculando la distancia entre punto de recogida y destino.
+    """
     df["distance_km"] = haversine(
         df["pickup_latitude"],
         df["pickup_longitude"],
@@ -79,10 +93,13 @@ def add_distance_feature(df: pd.DataFrame) -> pd.DataFrame:
 
 
 # =========================================================
-# TEMPORARY FEATURES
+# CARACTERÍSTICAS TEMPORALES
 # =========================================================
 def add_time_features(df: pd.DataFrame) -> pd.DataFrame:
-    """Add columns related to date and time."""
+    """
+    Extrae información temporal de la columna pickup_datetime.
+    Crea columnas: día, mes, hora, semana, día de la semana, etc.
+    """
     df["pickup_datetime"] = pd.to_datetime(df["pickup_datetime"])
     df["pickup_day"] = df["pickup_datetime"].dt.day
     df["pickup_month"] = df["pickup_datetime"].dt.month
@@ -95,66 +112,67 @@ def add_time_features(df: pd.DataFrame) -> pd.DataFrame:
 
 
 # =========================================================
-# WEATHER DATA
+# DATOS METEOROLÓGICOS
 # =========================================================
 def fetch_weather_data() -> pd.DataFrame:
-    """Download hourly weather data from Meteostat."""
-    print("Fetching weather data-")
+    """
+    Descarga datos meteorológicos horarios de Nueva York usando la API de Meteostat.
+    Retorna un DataFrame con variables climáticas (temperatura, precipitación, etc.)
+    """
+    print("Descargando datos meteorológicos...")
     data_hourly = Hourly(NYC_COORDS, START_DATE, END_DATE).fetch()
     data_hourly = data_hourly.reset_index().rename(columns={"time": "time_ny"})
-    print(f"Weather data:{data_hourly.shape}")
+    print(f"Datos climáticos descargados: {data_hourly.shape}")
     return data_hourly
 
 
 def merge_weather(df: pd.DataFrame, weather_df: pd.DataFrame) -> pd.DataFrame:
-    """Combine travel data with weather data according to the time of day."""
+    """
+    Une los datos del viaje con los datos climáticos según la hora del viaje.
+    """
     merged = df.merge(weather_df, how="left", left_on="pickup_datetime_hour_trunc", right_on="time_ny")
-    print(f"Merge complete: {merged.shape}")
+    print(f"Datos combinados: {merged.shape}")
     return merged
 
 
 # =========================================================
-# FEATURE SELECTION AND TRAINING
+# SELECCIÓN DE VARIABLES Y ENTRENAMIENTO
 # =========================================================
 FEATURES = [
-    "passenger_count",
-    "pickup_longitude",
-    "pickup_latitude",
-    "dropoff_longitude",
-    "dropoff_latitude",
-    "distance_km",
-    "pickup_day",
-    "pickup_hour",
-    "pickup_dayofweek",
-    "temp",
-    "prcp"
+    "passenger_count", "pickup_longitude", "pickup_latitude",
+    "dropoff_longitude", "dropoff_latitude", "distance_km",
+    "pickup_day", "pickup_hour", "pickup_dayofweek", "temp", "prcp"
 ]
 
 
 def train_split(df: pd.DataFrame):
-    """Divide the dataset into X (features) and Y (target)."""
+    """
+    Divide el dataset en variables predictoras (X) y variable objetivo (y).
+    """
     X = df[FEATURES]
     y = df["trip_duration"]
     return X, y
 
 
 def train_model(X_train, y_train) -> LGBMRegressor:
-    """Train the LightGBM model."""
-    print("Training LightGBM model-")
+    """
+    Entrena un modelo LightGBM para predecir la duración de los viajes.
+    """
+    print("Entrenando modelo LightGBM...")
     model = LGBMRegressor()
     model.fit(X_train, y_train)
-    print("Training complete.")
+    print("Entrenamiento completado.")
     return model
 
 
 # =========================================================
-# MAIN FUNCTION
+# FUNCIÓN PRINCIPAL
 # =========================================================
 def main():
-    print("Starting training-\n")
+    """Ejecuta el flujo completo de entrenamiento."""
+    print("Iniciando entrenamiento...\n")
 
     df = load_data(DATA_PATH)
-
     df = add_distance_feature(df)
     df = add_time_features(df)
 
@@ -164,13 +182,12 @@ def main():
     X_train, y_train = train_split(df)
     model = train_model(X_train, y_train)
 
-    
     joblib.dump(model, "./data/model_lgbm.pkl")
-    print("Model saved in ./data/model_lgbm.pkl")
+    print("Modelo guardado en ./data/model_lgbm.pkl")
 
 
 # =========================================================
-# ENTRY POINT 
+# PUNTO DE ENTRADA
 # =========================================================
 if __name__ == "__main__":
     main()
