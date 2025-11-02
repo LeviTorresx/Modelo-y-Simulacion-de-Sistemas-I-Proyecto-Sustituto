@@ -110,16 +110,16 @@ Cuando el contenedor se inicia hará lo siguiente:
 
 1. Cuando el contenedor se inicia, el script train.py:
 
-- Carga train.zip desde data/ y el script se encarga de descomprimirlo.
-- Preprocesa los datos.
-- Entrena el modelo, en nuestro caso LightGBM
-- Guarda el modelo en disco, en nuestro caso en la carpeta data con el nombre 'model_lgbm.pkl'
+  - Carga train.zip desde data/ y el script se encarga de descomprimirlo.
+  - Preprocesa los datos.
+  - Entrena el modelo, en nuestro caso LightGBM
+  - Guarda el modelo en disco, en nuestro caso en la carpeta data con el nombre 'model_lgbm.pkl'
 
 2. Después del entrenamiento, el contenedor ejecuta predict.py:
 
-- Carga test.zip desde data/ y el script se encarga de descomprimirlo.
-- Usa el modelo entrenado (model_lgbm.pkl) para generar predicciones.
-- Guarda en data/ un archivo submission.csv que será nuestra predicción.
+  - Carga test.zip desde data/ y el script se encarga de descomprimirlo.
+  - Usa el modelo entrenado (model_lgbm.pkl) para generar predicciones.
+  - Guarda en data/ un archivo submission.csv que será nuestra predicción.
 
 3. Cuando la ejecución finaliza, nuestro contenedor automáticamente se apaga.
 
