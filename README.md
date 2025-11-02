@@ -79,8 +79,7 @@ Dentro de `fase-2` encontramos un directorio adicional que se llama **`data`** q
 
 - **`test.zip`** → Es dataset con formato .csv comprimido que vamos a pasar por el modelo para generar la predicción.
 - **`train.zip`** → Es el conjunto de entrenamiento en formato .csv comprimido que incluye tanto las variables de entrada como la etiqueta objetivo (trip_duration) y se usa para entrenar el modelo.
-- **`model_lgbm.pkl`** → Archivo binario con el modelo ya entrenado (formato `pickle`), se genera después de ejecutar el script `train.py`.
-- **`submission.csv`** → Es la predicción realizada con el modelo entrenado, se genera después de ejecutar el script `predict.py`.
+
 
 ---
 
@@ -133,9 +132,9 @@ docker compose up --build
 
 Nuestros resultados esperados estarán almacenados en el directorio data de nuestro repositorio raíz.
 
-- El modelo entrenado con LightGBM en formato pickle 'model_lgbm.pkl'.
-- Archivo `submission.csv` con las predicciones finales.  
-
+- **`model_lgbm.pkl`** → Archivo binario con el modelo ya entrenado (formato `pickle`), se genera después de ejecutar el script `train.py`.
+- **`submission.csv`** → Es la predicción realizada con el modelo entrenado, se genera después de ejecutar el script `predict.py`.
+  
 ---
 
 ## Próximas fases
