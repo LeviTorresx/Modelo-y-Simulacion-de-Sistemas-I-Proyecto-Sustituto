@@ -239,18 +239,18 @@ Ejemplo de los resultados esperados para código 200 (OK):
 === Ejecutando entrenamiento vía API ===  
 Status: 200  
 JSON: {  
-  "status": "trained",  
-  "model_path": "./data/model_lgbm.pkl"  
+    "status": "trained",  
+    "model_path": "./data/model_lgbm.pkl"  
 }  
   
 === Solicitando predicción ===  
 Status: 200  
 JSON: {  
-  "predictions": [  
-    {  
-      "prediction": 1679.078195277709  
-    }  
-  ]  
+    "predictions": [  
+      {  
+        "prediction": 1679.078195277709  
+      }  
+    ]  
 }  
   
 ---
