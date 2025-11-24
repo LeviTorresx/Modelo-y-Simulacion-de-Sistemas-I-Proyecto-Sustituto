@@ -235,22 +235,22 @@ El contenedor no se apaga automáticamente, se quedará corriendo ya que la API 
 
 Nuestros resultados esperados serán visibles en la terminal donde ejecutamos el script `client.py` la cual nos mostrará una respuesta HTTP con el código HTTP de la petición y el cuerpo de un JSON.
 
-Ejemplo de los resultados esperados para código 200 (OK):
-=== Ejecutando entrenamiento vía API ===
-Status: 200
-JSON: {
-  "status": "trained",
-  "model_path": "./data/model_lgbm.pkl"
-}
-
-=== Solicitando predicción ===
-Status: 200
-JSON: {
-  "predictions": [
-    {
-      "prediction": 1679.078195277709
-    }
-  ]
-}
+Ejemplo de los resultados esperados para código 200 (OK):  
+=== Ejecutando entrenamiento vía API ===  
+Status: 200  
+JSON: {  
+  "status": "trained",  
+  "model_path": "./data/model_lgbm.pkl"  
+}  
+  
+=== Solicitando predicción ===  
+Status: 200  
+JSON: {  
+  "predictions": [  
+    {  
+      "prediction": 1679.078195277709  
+    }  
+  ]  
+}  
   
 ---
