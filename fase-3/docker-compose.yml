@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+  modelo-taxi-api:
+    build: .
+    container_name: modelo-taxi-api
+    ports:
+      - "8000:8000"          # Exponer FastAPI hacia la máquina host
+    volumes:
+      - ./data:/app/data     # Mantener modelo y CSVs persistentes
+    restart: unless-stopped  # Reinicio seguro del contenedor
